@@ -564,7 +564,6 @@
 
 
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { MOCK_EMPLOYEES, MASTER_PASSWORD } from './constants';
 import { appsScriptService } from './services/googleAppsScriptService';
@@ -673,7 +672,7 @@ export default function App() {
     setLoading(true);
     try {
       await appsScriptService.adminMarkStatus(emp.name, adminSelectedCode);
-      showFeedback('success', `${emp.name} updated to ${adminSelectedCode}. Matrix refreshed.`);
+      showFeedback('success', `${emp.name} updated to ${adminSelectedCode}. Summary refreshed.`);
     } catch (err) {
       showFeedback('error', 'Sync error.');
     } finally {
@@ -685,9 +684,26 @@ export default function App() {
     setLoading(true);
     try {
       await appsScriptService.syncSummary();
-      showFeedback('success', 'Global Audit Recalculated (Month Auto-Detected).');
+      showFeedback('success', 'Full Audit Recalculated for this month.');
     } catch (err) {
       showFeedback('error', 'Refresh failure.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRebuildCalendar = async () => {
+    if (!confirm("This will RESET the calendar structure for the CURRENT month to fix day counts. Proceed?")) return;
+    setLoading(true);
+    try {
+      await appsScriptService.postToScript({ 
+        action: 'rebuildCalendar', 
+        dateHeader: appsScriptService.getDateHeaderFormat(),
+        employee: 'Admin'
+      });
+      showFeedback('success', 'Calendar Repaired (Feb is now 28 days).');
+    } catch (err) {
+      showFeedback('error', 'Repair failed.');
     } finally {
       setLoading(false);
     }
@@ -720,7 +736,7 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className={`w-2 h-2 rounded-full ${locationState.status === 'in_range' ? 'bg-emerald-400' : 'bg-rose-500'} animate-pulse`} />
-                <span className="text-[10px] font-black tracking-widest text-white/50 uppercase">Matrix v17.3 Final</span>
+                <span className="text-[10px] font-black tracking-widest text-white/50 uppercase">Matrix v17.5 Pro</span>
               </div>
               <h1 className="text-2xl font-bold">{view === 'ADMIN' ? 'Admin Dashboard' : 'Digital Punch-In'}</h1>
             </div>
@@ -749,9 +765,9 @@ export default function App() {
           ) : (
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Name</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Personnel</label>
                 <select value={selectedEmployeeId} onChange={(e) => setSelectedEmployeeId(e.target.value)} className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-5 font-semibold outline-none appearance-none">
-                  <option value="">Identify Person...</option>
+                  <option value="">Choose Employee...</option>
                   {MOCK_EMPLOYEES.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
                 </select>
               </div>
@@ -786,11 +802,16 @@ export default function App() {
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     <button onClick={handleAdminAction} disabled={loading} className="w-full h-16 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg transition-all active:scale-95">
-                      {loading ? 'Updating Matrix...' : 'Commit Status Update'}
+                      {loading ? 'Updating...' : 'Commit Status Update'}
                     </button>
-                    <button onClick={handleForceSync} disabled={loading} className="w-full h-12 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-md transition-all active:scale-95">
-                      {loading ? 'Auditing History...' : 'Manual Summary Sync'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={handleForceSync} disabled={loading} className="flex-1 h-12 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-md transition-all active:scale-95">
+                        {loading ? 'Processing...' : 'Recalculate Summary'}
+                      </button>
+                      <button onClick={handleRebuildCalendar} disabled={loading} className="flex-1 h-12 bg-rose-600 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-md transition-all active:scale-95">
+                        Repair Calendar Days
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -799,7 +820,7 @@ export default function App() {
 
           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
             <div className="space-y-1">
-               <p className="text-[8px] font-bold text-slate-400 uppercase">Current Policy</p>
+               <p className="text-[8px] font-bold text-slate-400 uppercase">Policy Check</p>
                <p className="text-[10px] font-bold text-slate-700">{rules.ruleName}</p>
             </div>
             <button onClick={checkProximity} className="text-[9px] font-black uppercase text-indigo-600 hover:text-indigo-800 transition-colors">
@@ -810,7 +831,7 @@ export default function App() {
 
         <div className="px-8 py-4 bg-slate-50 border-t border-slate-100 flex justify-between text-[8px] font-black uppercase text-slate-400">
           <span>{locationState.status === 'in_range' ? '✅ Security Verified' : '❌ Signal Blocked'}</span>
-          <span>Security Protocol: V17.3 FINAL</span>
+          <span>Security Protocol: V17.5 FINAL</span>
         </div>
       </div>
     </div>

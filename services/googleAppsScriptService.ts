@@ -102,13 +102,13 @@
 
 // const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxkN8VBK8emW5naCDkQooxRLncEoFRhQElFMbmp5MpzIsKntXDEvyzZ7KkcovPn6V5-jg/exec';
 // const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyq-v1H0OsW4Kp8huZneNSUXja4BdzpOqzbFtvY55_JeZtS3P289Mz-zTdWBA3HqPloJA/exec';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtoxHlg9mYbo0dMNv2baDYGiIQXyzqOOvIQ_gpdc_zVLL4w9Q9shH6KkpOjFsodlbsTQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUw-kyS4ptZGEA_L1PMIg0nNtD2vxhkahQyvIgwk5bTw2v1FGumbZcJoCf28VPlX9bTQ/exec';
+
+// const SCRIPT_URL = 'https://script.google.com/a/macros/sirican.com/s/AKfycbxu5CGlaIo8zv1Imv1jxeDz1MqbZcOjirpWyS-L1Upx_qbxL1V8kg1kaYEhEEjEuCovMQ/exec';
 
 /**
  * Generates header "18-Feb" precisely for the sheet.
- * Hardcoded timeZone ensures consistent date mapping regardless of browser location.
  */
-
 const getDateHeaderFormat = () => {
   const now = new Date();
   const formatter = new Intl.DateTimeFormat('en-IN', {
@@ -139,6 +139,8 @@ const getLocation = (): Promise<string> => {
 };
 
 export const appsScriptService = {
+  getDateHeaderFormat,
+  
   async saveSignIn(employeeId: string, employeeName: string): Promise<void> {
     const locationStr = await getLocation();
     return this.postToScript({
@@ -195,6 +197,3 @@ export const appsScriptService = {
     }
   }
 };
-
-
- 
