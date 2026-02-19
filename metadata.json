@@ -1,0 +1,7 @@
+{
+  "name": "feb",
+  "description": "High-end corporate attendance tracking with live location verification and secure sync.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
